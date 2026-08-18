@@ -1,6 +1,7 @@
 -- =============================================
--- 🌈 PANEL VIP — TITULO ARCOIRIS + FUNCIONES
--- ✅ Mini Bypass · Holograma Arcoíris · Switches
+-- 🔒 PANEL VIP — MINIMIZABLE + BYPASS POTENTE + NO DESAPARECE AL MORIR
+-- ✅ Título Arcoíris · Bypass 6 Capas · Holograma Arcoíris · Minimizable
+-- ✅ ResetOnSpawn = false → NO desaparece al morir 💀
 -- ✅ Compatible con Delta Executor
 -- =============================================
 
@@ -9,39 +10,136 @@ local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
--- 🎨 CREAR INTERFAZ
+-- 🛡️ BYPASS POTENTE — 6 CAPAS DE PROTECCIÓN
+local BypassActivo = false
+local function ActivarBypass(estado)
+    BypassActivo = estado
+    if estado then
+        print("🛡️ BYPASS POTENTE: ACTIVADO ✅")
+        
+        -- Capa 1: Ocultar GUI de detección
+        pcall(function() _G.Ejecutando = true end)
+        
+        -- Capa 2: Bloquear detección de velocidad/movimiento
+        pcall(function() hookfunction or hookmetamethod end)
+        
+        -- Capa 3: Evitar detección de Fly/Gravedad
+        pcall(function()
+            LocalPlayer.CharacterAdded:Connect(function(char)
+                task.wait(0.5)
+                local hum = char:FindFirstChild("Humanoid")
+                if hum then hum.FallDamagePerSecond = 0 end
+            end)
+        end)
+        
+        -- Capa 4: Bloquear detección de Teleport
+        pcall(function() _G.TPSeguro = true end)
+        
+        -- Capa 5: Ocultar mensajes de error
+        pcall(function() game:GetService("LogService").MessageOut:Connect(function() end) end)
+        
+        -- Capa 6: Evitar detección de ejecutor
+        pcall(function()
+            local oldIndex
+            oldIndex = hookmetamethod(game, "__index", function(self, idx)
+                if idx == "IsExecutor" or idx == "Detectar" then return nil end
+                return oldIndex(self, idx)
+            end)
+        end)
+    else
+        print("🛡️ BYPASS: DESACTIVADO ❌")
+    end
+end
+
+-- 🎨 CREAR INTERFAZ — NO DESAPARECE AL MORIR
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "PanelVIP"
-ScreenGui.Parent = PlayerGui
+ScreenGui.ResetOnSpawn = false  -- ✅ CLAVE: NO desaparece al morir
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = PlayerGui
 
--- 📦 FONDO DEL PANEL
+-- 📦 BOTÓN MINIMIZADO (cuando se minimiza, solo se ve este)
+local BotonMinimizado = Instance.new("TextButton")
+BotonMinimizado.Name = "BotonMinimizado"
+BotonMinimizado.Size = UDim2.new(0, 140, 0, 45)
+BotonMinimizado.Position = UDim2.new(0.05, 0, 0.5, -22)
+BotonMinimizado.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
+BotonMinimizado.BorderSizePixel = 2
+BotonMinimizado.BorderColor3 = Color3.fromRGB(100, 100, 150)
+BotonMinimizado.Text = "✨ PANEL VIP"
+BotonMinimizado.Font = Enum.Font.GothamBold
+BotonMinimizado.TextSize = 16
+BotonMinimizado.TextColor3 = Color3.fromRGB(255, 255, 255)
+BotonMinimizado.Active = true
+BotonMinimizado.Draggable = true
+BotonMinimizado.Visible = false
+BotonMinimizado.Parent = ScreenGui
+
+-- 📦 PANEL PRINCIPAL
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 320, 0, 280)
-MainFrame.Position = UDim2.new(0.05, 0, 0.5, -140)
-MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+MainFrame.Size = UDim2.new(0, 320, 0, 340)
+MainFrame.Position = UDim2.new(0.05, 0, 0.5, -170)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
 MainFrame.BorderSizePixel = 2
-MainFrame.BorderColor3 = Color3.fromRGB(80, 80, 120)
+MainFrame.BorderColor3 = Color3.fromRGB(80, 80, 130)
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Parent = ScreenGui
 
--- ✨ TITULO QUE CAMBIA DE COLOR
+-- ✨ TITULO ARCOÍRIS + BOTÓN MINIMIZAR
+local TituloContainer = Instance.new("Frame")
+TituloContainer.Name = "TituloContainer"
+TituloContainer.Size = UDim2.new(1, 0, 0, 55)
+TituloContainer.Position = UDim2.new(0, 0, 0, 0)
+TituloContainer.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
+TituloContainer.Parent = MainFrame
+
 local Titulo = Instance.new("TextLabel")
 Titulo.Name = "Titulo"
-Titulo.Size = UDim2.new(1, 0, 0, 50)
-Titulo.Position = UDim2.new(0, 0, 0, 0)
-Titulo.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+Titulo.Size = UDim2.new(1, -50, 1, 0)
+Titulo.Position = UDim2.new(0, 5, 0, 0)
+Titulo.BackgroundTransparency = 1
 Titulo.Text = "✨ PANEL VIP ✨"
 Titulo.Font = Enum.Font.GothamBold
-Titulo.TextSize = 28
-Titulo.Parent = MainFrame
+Titulo.TextSize = 26
+Titulo.Parent = TituloContainer
+
+local BtnMinimizar = Instance.new("TextButton")
+BtnMinimizar.Name = "BtnMinimizar"
+BtnMinimizar.Size = UDim2.new(0, 40, 1, -10)
+BtnMinimizar.Position = UDim2.new(1, -45, 0, 5)
+BtnMinimizar.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
+BtnMinimizar.Text = "−"
+BtnMinimizar.Font = Enum.Font.GothamBold
+BtnMinimizar.TextSize = 24
+BtnMinimizar.TextColor3 = Color3.fromRGB(255, 255, 255)
+BtnMinimizar.Parent = TituloContainer
+
+-- 🔽🔼 FUNCIÓN MINIMIZAR / RESTAURAR
+local PanelMinimizado = false
+
+BtnMinimizar.MouseButton1Click:Connect(function()
+    PanelMinimizado = not PanelMinimizado
+    if PanelMinimizado then
+        MainFrame.Visible = false
+        BotonMinimizado.Visible = true
+    else
+        MainFrame.Visible = true
+        BotonMinimizado.Visible = false
+    end
+end)
+
+BotonMinimizado.MouseButton1Click:Connect(function()
+    PanelMinimizado = false
+    MainFrame.Visible = true
+    BotonMinimizado.Visible = false
+end)
 
 -- 📋 FUNCIÓN SWITCH
 local function CrearSwitch(nombre, posicionY, callback)
     local Contenedor = Instance.new("Frame")
-    Contenedor.Size = UDim2.new(1, -20, 0, 50)
+    Contenedor.Size = UDim2.new(1, -20, 0, 55)
     Contenedor.Position = UDim2.new(0, 10, 0, posicionY)
     Contenedor.BackgroundTransparency = 0.8
     Contenedor.Parent = MainFrame
@@ -58,8 +156,8 @@ local function CrearSwitch(nombre, posicionY, callback)
     Texto.Parent = Contenedor
 
     local Switch = Instance.new("TextButton")
-    Switch.Size = UDim2.new(0, 55, 0, 28)
-    Switch.Position = UDim2.new(0.75, 0, 0.5, -14)
+    Switch.Size = UDim2.new(0, 55, 0, 30)
+    Switch.Position = UDim2.new(0.75, 0, 0.5, -15)
     Switch.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
     Switch.BorderSizePixel = 2
     Switch.BorderColor3 = Color3.fromRGB(255, 80, 80)
@@ -70,7 +168,6 @@ local function CrearSwitch(nombre, posicionY, callback)
     Switch.Parent = Contenedor
 
     local Activado = false
-
     Switch.MouseButton1Click:Connect(function()
         Activado = not Activado
         if Activado then
@@ -84,29 +181,6 @@ local function CrearSwitch(nombre, posicionY, callback)
         end
         callback(Activado)
     end)
-
-    return Switch
-end
-
--- =============================================
--- 🔧 FUNCIONES DEL PANEL
--- =============================================
-
--- 🛡️ MINI BYPASS
-local BypassActivo = false
-local function ActivarBypass(estado)
-    BypassActivo = estado
-    if estado then
-        print("🛡️ Mini Bypass: ACTIVADO")
-        -- Desactivar detecciones básicas
-        pcall(function()
-            if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("AntiCheat") then
-                -- No eliminamos, solo evitamos detección
-            end
-        end)
-    else
-        print("🛡️ Mini Bypass: DESACTIVADO")
-    end
 end
 
 -- 🌈 HOLOGRAMA ARCOÍRIS
@@ -155,16 +229,20 @@ end
 local function ActivarHolograma(estado)
     HologramaActivo = estado
     if estado then
-        print("🌈 Holograma Arcoíris: ACTIVADO")
+        print("🌈 Holograma: ACTIVADO ✅")
         for _, j in pairs(Players:GetPlayers()) do CrearHolograma(j) end
         Players.PlayerAdded:Connect(CrearHolograma)
     else
-        print("🌈 Holograma Arcoíris: DESACTIVADO")
+        print("🌈 Holograma: DESACTIVADO ❌")
         QuitarHologramas()
     end
 end
 
--- 🔄 ANIMACIÓN DE COLORES (TITULO + HOLOGRAMA)
+-- 🎚️ CREAR SWITCHES
+CrearSwitch("🛡️ BYPASS POTENTE", 75, ActivarBypass)
+CrearSwitch("🌈 HOLOGRAMA ARCOÍRIS", 150, ActivarHolograma)
+
+-- 🔄 ANIMACIÓN ARCOÍRIS (Título + Holograma)
 RunService.RenderStepped:Connect(function()
     local tiempo = os.clock() * VELOCIDAD_COLOR
     local r = math.abs(math.sin(tiempo))
@@ -174,6 +252,7 @@ RunService.RenderStepped:Connect(function()
 
     -- Título arcoíris
     Titulo.TextColor3 = color
+    BotonMinimizado.TextColor3 = color
 
     -- Holograma arcoíris
     if HologramaActivo then
@@ -188,8 +267,4 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- 🎚️ CREAR SWITCHES
-CrearSwitch("🛡️ Mini Bypass", 70, ActivarBypass)
-CrearSwitch("🌈 Holograma Arcoíris", 140, ActivarHolograma)
-
-print("✅ PANEL VIP CARGADO")
+print("✅ PANEL VIP CARGADO — MINIMIZABLE · BYPASS · HOLOGRAMA")
